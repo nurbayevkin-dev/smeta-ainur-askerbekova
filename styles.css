@@ -79,3 +79,66 @@ select { width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ccc; bor
   .print-doc .totals p { display: flex; justify-content: space-between; max-width: 300px; margin-left: auto; }
   .print-doc .sign { display: flex; justify-content: space-between; gap: 24pt; margin-top: 40pt; }
 }
+
+/* ===== Дизайн: интерьер (терракота + синий) ===== */
+body {
+  background: #f1ece4;
+  color: #1f2d5c;
+}
+
+/* Шапка — тёмно-синяя, снизу полоски как у ковра */
+h1 {
+  margin: 8px 0 20px;
+  padding: 24px 20px 32px;
+  border-radius: 12px;
+  color: #f1ece4;
+  background:
+    repeating-linear-gradient(0deg, #a23e2c 0 3px, #f1ece4 3px 6px) bottom / 100% 12px no-repeat,
+    #1f2d5c;
+}
+h1::before { content: "🛋 "; }
+h1::after {
+  content: "Ремонт и дизайн интерьера";
+  display: block;
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #9db3cf;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Карточки — терракотовая полоса слева */
+.card {
+  border-left: 6px solid #a23e2c;
+  box-shadow: 0 2px 10px rgba(31, 45, 92, 0.08);
+}
+h2 {
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a23e2c;
+}
+.items th, .requisites label, .settings label { color: #1f2d5c; }
+input, select { border-color: #c9c1b5; }
+
+/* Кнопки — терракота */
+.add {
+  background: #a23e2c;
+  color: #fff;
+  font-weight: 600;
+}
+.add:hover { background: #87321f; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #9db3cf; }
+
+/* Итог — тёмно-синяя табличка */
+.summary div { border-bottom-color: #e2dbd0; }
+.summary .grand {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #1f2d5c;
+  color: #f1ece4;
+  border-bottom: 4px solid #c29a6b;
+}
+.summary .grand dd { color: #f4d9c6; }
