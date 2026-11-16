@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Смета за 5 минут</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="container">
+    <h1>Смета за 5 минут</h1>
+
+    <section class="card">
+      <h2>Реквизиты</h2>
+      <div class="requisites">
+        <label>От кого <input type="text" id="from" placeholder="Ваше имя или компания"></label>
+        <label>Для кого <input type="text" id="to" placeholder="Клиент"></label>
+        <label>Номер <input type="text" id="number" placeholder="1"></label>
+        <label>Дата <input type="date" id="date"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Позиции</h2>
+      <table class="items">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Кол-во</th>
+            <th>Ед.</th>
+            <th>Цена</th>
+            <th>Сумма</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <button type="button" id="add" class="add">+ Добавить позицию</button>
+      <p class="total">Итого: <strong id="total">0 ₸</strong></p>
+    </section>
+  </main>
+
+  <template id="row-template">
+    <tr>
+      <td data-label="Название"><input type="text" class="name" placeholder="Например, покраска"></td>
+      <td data-label="Кол-во"><input type="number" class="qty" min="0" step="any" inputmode="decimal"></td>
+      <td data-label="Ед."><input type="text" class="unit" value="шт"></td>
+      <td data-label="Цена"><input type="number" class="price" min="0" step="any" inputmode="decimal"></td>
+      <td data-label="Сумма" class="sum">0 ₸</td>
+      <td><button type="button" class="remove" aria-label="Удалить позицию">✕</button></td>
+    </tr>
+  </template>
+</body>
+</html>
