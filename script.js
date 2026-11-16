@@ -167,3 +167,43 @@ document.getElementById('print').addEventListener('click', () => {
 
 // Если печатают через Cmd+P — документ тоже соберётся
 window.addEventListener('beforeprint', buildPrintDoc);
+
+// ===== Шаблоны услуг: выпадающий список =====
+// Цены примерные — замените на свои
+const SERVICES = [
+  { name: 'Покраска стен', unit: 'м²', price: 2500 },
+  { name: 'Грунтовка', unit: 'м²', price: 800 },
+  { name: 'Шпаклёвка', unit: 'м²', price: 2000 },
+  { name: 'Штукатурка', unit: 'м²', price: 3000 },
+  { name: 'Поклейка обоев', unit: 'м²', price: 2000 },
+  { name: 'Укладка ламината', unit: 'м²', price: 3000 },
+  { name: 'Укладка плитки', unit: 'м²', price: 7000 },
+  { name: 'Демонтаж', unit: 'м²', price: 1500 },
+  { name: 'Установка розетки', unit: 'шт', price: 3000 },
+  { name: 'Вывоз мусора', unit: 'рейс', price: 15000 },
+];
+
+// Создаём список подсказок
+const datalist = document.createElement('datalist');
+datalist.id = 'services';
+SERVICES.forEach((service) => {
+  const option = document.createElement('option');
+  option.value = service.name;
+  datalist.appendChild(option);
+});
+document.body.appendChild(datalist);
+
+// Подключаем список к полю «Название» — в новых и уже существующих строках
+template.content.querySelector('.name').setAttribute('list', 'services');
+rows.querySelectorAll('.name').forEach((input) => input.setAttribute('list', 'services'));
+
+// Выбрали услугу из списка — подставляем единицу и цену
+rows.addEventListener('input', (event) => {
+  if (!event.target.classList.contains('name')) return;
+  const service = SERVICES.find((s) => s.name === event.target.value);
+  if (!service) return;
+  const row = event.target.closest('tr');
+  row.querySelector('.unit').value = service.unit;
+  row.querySelector('.price').value = service.price;
+  recalc();
+});
