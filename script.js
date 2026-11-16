@@ -94,3 +94,76 @@ rows.addEventListener('keydown', (event) => {
 document.getElementById('add').addEventListener('click', addRow);
 
 addRow();
+
+// ===== Функция 3: документ в PDF =====
+function el(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+
+function buildPrintDoc() {
+  recalc();
+  const doc = document.getElementById('print-doc');
+  doc.innerHTML = '';
+
+  const number = document.getElementById('number').value.trim() || '1';
+  const dateValue = document.getElementById('date').value;
+  const date = dateValue ? dateValue.split('-').reverse().join('.') : '';
+  const from = document.getElementById('from').value.trim() || '—';
+  const to = document.getElementById('to').value.trim() || '—';
+
+  doc.appendChild(el('h1', 'Смета № ' + number + ' от ' + date));
+  doc.appendChild(el('p', 'От кого: ' + from));
+  doc.appendChild(el('p', 'Для кого: ' + to));
+
+  // Таблица позиций с рамками
+  const table = el('table');
+  const head = el('tr');
+  ['№', 'Название', 'Кол-во', 'Ед.', 'Цена', 'Сумма'].forEach((title) => head.appendChild(el('th', title)));
+  table.appendChild(head);
+
+  let index = 0;
+  rows.querySelectorAll('tr').forEach((row) => {
+    const name = row.querySelector('.name').value.trim();
+    const qty = row.querySelector('.qty').value;
+    const price = row.querySelector('.price').value;
+    if (!name && !qty && !price) return; // пустые строки не печатаем
+    index += 1;
+    const tr = el('tr');
+    tr.appendChild(el('td', String(index)));
+    tr.appendChild(el('td', name || '—'));
+    tr.appendChild(el('td', String(toNumber(qty)), 'num'));
+    tr.appendChild(el('td', row.querySelector('.unit').value));
+    tr.appendChild(el('td', formatMoney(toNumber(price)), 'num'));
+    tr.appendChild(el('td', row.querySelector('.sum').textContent, 'num'));
+    table.appendChild(tr);
+  });
+  doc.appendChild(table);
+
+  // Итоги — те же цифры, что на экране
+  const totals = el('div', undefined, 'totals');
+  document.querySelectorAll('.summary > div').forEach((line) => {
+    if (line.hidden) return;
+    const p = el('p');
+    p.appendChild(el('span', line.querySelector('dt').textContent));
+    p.appendChild(el('strong', line.querySelector('dd').textContent));
+    totals.appendChild(p);
+  });
+  doc.appendChild(totals);
+
+  // Строка для подписи
+  const sign = el('div', undefined, 'sign');
+  sign.appendChild(el('p', 'Исполнитель: ____________ / ' + from));
+  sign.appendChild(el('p', 'Заказчик: ____________ / ' + to));
+  doc.appendChild(sign);
+}
+
+document.getElementById('print').addEventListener('click', () => {
+  buildPrintDoc();
+  window.print();
+});
+
+// Если печатают через Cmd+P — документ тоже соберётся
+window.addEventListener('beforeprint', buildPrintDoc);

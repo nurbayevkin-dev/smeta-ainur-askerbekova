@@ -60,8 +60,12 @@
         <div id="vat-row" hidden><dt>НДС <span id="vat-label"></span></dt><dd id="vat-amount">0 ₸</dd></div>
         <div class="grand"><dt>Итого к оплате</dt><dd id="total">0 ₸</dd></div>
       </dl>
+      <button type="button" id="print" class="add">Сохранить PDF</button>
     </section>
   </main>
+
+  <!-- Документ для печати: виден только в PDF -->
+  <section id="print-doc" class="print-doc"></section>
 
   <template id="row-template">
     <tr>

@@ -62,3 +62,20 @@ select { width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ccc; bor
 .summary dd { font-weight: 600; white-space: nowrap; }
 .summary .grand { font-size: 22px; border-bottom: none; }
 .summary [hidden] { display: none; }
+
+/* Функция 3: документ для печати */
+.print-doc { display: none; }
+
+@media print {
+  @page { size: A4; margin: 15mm; }
+  body { background: #fff; }
+  .container { display: none; }
+  .print-doc { display: block; color: #000; font-size: 12pt; }
+  .print-doc h1 { font-size: 18pt; margin: 0 0 8pt; }
+  .print-doc p { margin: 2pt 0; }
+  .print-doc table { width: 100%; border-collapse: collapse; margin: 12pt 0; }
+  .print-doc th, .print-doc td { border: 1px solid #000; padding: 4pt 6pt; text-align: left; }
+  .print-doc .num { text-align: right; white-space: nowrap; }
+  .print-doc .totals p { display: flex; justify-content: space-between; max-width: 300px; margin-left: auto; }
+  .print-doc .sign { display: flex; justify-content: space-between; gap: 24pt; margin-top: 40pt; }
+}
