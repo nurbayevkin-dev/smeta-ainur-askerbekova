@@ -63,7 +63,11 @@
         <div id="vat-row" hidden><dt>НДС <span id="vat-label"></span></dt><dd id="vat-amount">0 ₸</dd></div>
         <div class="grand"><dt>Итого к оплате</dt><dd id="total">0 ₸</dd></div>
       </dl>
-      <button type="button" id="print" class="add">Сохранить PDF</button>
+      <div class="export-actions">
+        <button type="button" id="print" class="add">Сохранить PDF</button>
+        <button type="button" id="copy-whatsapp" class="add">Скопировать для WhatsApp</button>
+      </div>
+      <textarea id="copy-fallback" class="copy-fallback" rows="8" readonly aria-label="Текст сметы для ручного копирования" hidden></textarea>
     </section>
   </main>
 

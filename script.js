@@ -255,6 +255,59 @@ document.getElementById('print').addEventListener('click', () => {
   window.print();
 });
 
+function buildWhatsAppText() {
+  recalc();
+  const number = document.getElementById('number').value.trim() || '1';
+  const dateValue = document.getElementById('date').value;
+  const date = dateValue ? dateValue.split('-').reverse().join('.') : '';
+  const from = document.getElementById('from').value.trim() || '—';
+  const to = document.getElementById('to').value.trim() || '—';
+  const numberFormat = (value) => toNumber(value).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+  const lines = ['Смета № ' + number + ' от ' + date, 'От кого: ' + from, 'Для кого: ' + to];
+
+  let index = 0;
+  rows.querySelectorAll('tr').forEach((row) => {
+    const name = row.querySelector('.name').value.trim();
+    const qty = row.querySelector('.qty').value;
+    const price = row.querySelector('.price').value;
+    if (!name && !qty && !price) return;
+    index += 1;
+    const unit = row.querySelector('.unit').value.trim();
+    lines.push(index + '. ' + (name || '—') + ' — ' + numberFormat(qty) + (unit ? ' ' + unit : '') +
+      ' × ' + formatMoney(toNumber(price)) + ' = ' + row.querySelector('.sum').textContent);
+  });
+
+  document.querySelectorAll('.summary > div').forEach((line) => {
+    if (line.hidden || line.classList.contains('grand') || line.id === 'after-discount-row') return;
+    const label = line.querySelector('dt').textContent.trim();
+    const amount = line.querySelector('dd').textContent.trim();
+    lines.push(label + ': ' + amount);
+  });
+  const total = document.querySelector('.summary .grand');
+  lines.push(total.querySelector('dt').textContent + ': ' + total.querySelector('dd').textContent);
+  return lines.join('\n');
+}
+
+const copyButton = document.getElementById('copy-whatsapp');
+const copyFallback = document.getElementById('copy-fallback');
+let copyLabelTimer;
+copyButton.addEventListener('click', async () => {
+  const text = buildWhatsAppText();
+  copyFallback.hidden = true;
+  try {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(text);
+    copyButton.textContent = 'Скопировано ✓';
+    clearTimeout(copyLabelTimer);
+    copyLabelTimer = setTimeout(() => { copyButton.textContent = 'Скопировать для WhatsApp'; }, 2000);
+  } catch (error) {
+    copyFallback.value = text;
+    copyFallback.hidden = false;
+    copyFallback.focus();
+    copyFallback.select();
+  }
+});
+
 // Если печатают через Cmd+P — документ тоже соберётся
 window.addEventListener('beforeprint', buildPrintDoc);
 

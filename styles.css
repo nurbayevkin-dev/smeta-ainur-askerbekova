@@ -161,6 +161,21 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .summary .grand dt, .summary .grand dd { color: var(--card); }
 .summary .grand dd { font-size: 22px; }
 .summary [hidden] { display: none; }
+.export-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.export-actions .add { margin: 0; }
+.copy-fallback {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #FFFEFC;
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+.copy-fallback[hidden] { display: none; }
 
 /* Документ печати остаётся отдельным чёрно-белым макетом. */
 .print-doc { display: none; }
