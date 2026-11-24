@@ -4,10 +4,55 @@ const discountInput = document.getElementById('discount');
 const vatInput = document.getElementById('vat');
 const currencySelect = document.getElementById('currency');
 const fromInput = document.getElementById('from');
+const draftKey = 'smeta.draft';
 
-// Запоминаем только поле «От кого» в этом браузере.
+function readDraft() {
+  try {
+    const saved = localStorage.getItem(draftKey);
+    if (saved) return JSON.parse(saved);
+    // Поддерживаем прежнее сохранение поля «От кого».
+    return { from: localStorage.getItem('smeta.from') || '' };
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveDraft() {
+  try {
+    const draft = {
+      from: document.getElementById('from').value,
+      to: document.getElementById('to').value,
+      number: document.getElementById('number').value,
+      date: document.getElementById('date').value,
+      discount: discountInput.value,
+      vat: vatInput.value,
+      currency: currencySelect.value,
+      rows: Array.from(rows.querySelectorAll('tr'), (row) => ({
+        name: row.querySelector('.name').value,
+        qty: row.querySelector('.qty').value,
+        unit: row.querySelector('.unit').value,
+        price: row.querySelector('.price').value,
+      })),
+    };
+    localStorage.setItem(draftKey, JSON.stringify(draft));
+  } catch (error) {
+    // Недоступное хранилище не мешает работе сметы.
+  }
+}
+
+const savedDraft = readDraft();
+if (savedDraft) {
+  ['from', 'to', 'number', 'date'].forEach((id) => {
+    if (savedDraft[id] !== undefined) document.getElementById(id).value = savedDraft[id];
+  });
+  if (savedDraft.discount !== undefined) discountInput.value = savedDraft.discount;
+  if (savedDraft.vat !== undefined) vatInput.value = savedDraft.vat;
+  if (savedDraft.currency) currencySelect.value = savedDraft.currency;
+}
+
+/* Старое отдельное сохранение поддерживаем для совместимости. */
 try {
-  fromInput.value = localStorage.getItem('smeta.from') || '';
+  if (!savedDraft) fromInput.value = localStorage.getItem('smeta.from') || '';
 } catch (error) {
   // Если localStorage недоступен, поле работает как обычный ввод.
 }
@@ -23,8 +68,10 @@ fromInput.addEventListener('input', () => {
 // Дата по умолчанию — сегодня
 const now = new Date();
 const pad = (n) => String(n).padStart(2, '0');
-document.getElementById('date').value =
-  now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+if (!document.getElementById('date').value) {
+  document.getElementById('date').value =
+    now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+}
 
 // Пустое или неверное поле = 0, чтобы не было NaN
 function toNumber(value) {
@@ -76,11 +123,13 @@ function recalc() {
   document.getElementById('discount-row').hidden = discountPercent === 0;
   document.getElementById('after-discount-row').hidden = discountPercent === 0;
   document.getElementById('vat-row').hidden = vatPercent === 0;
+  saveDraft();
 }
 
 function addRow() {
   const row = template.content.firstElementChild.cloneNode(true);
   rows.appendChild(row);
+  saveDraft();
   row.querySelector('.name').focus();
   recalc();
 }
@@ -90,6 +139,10 @@ rows.addEventListener('input', recalc);
 discountInput.addEventListener('input', recalc);
 vatInput.addEventListener('input', recalc);
 currencySelect.addEventListener('change', recalc);
+['from', 'to', 'number', 'date'].forEach((id) => {
+  document.getElementById(id).addEventListener('input', saveDraft);
+  document.getElementById(id).addEventListener('change', saveDraft);
+});
 
 // Кнопка ✕ удаляет строку
 rows.addEventListener('click', (event) => {
@@ -109,7 +162,28 @@ rows.addEventListener('keydown', (event) => {
 
 document.getElementById('add').addEventListener('click', addRow);
 
-addRow();
+if (savedDraft && Array.isArray(savedDraft.rows) && savedDraft.rows.length) {
+  savedDraft.rows.forEach((item) => {
+    const row = template.content.firstElementChild.cloneNode(true);
+    row.querySelector('.name').value = item.name || '';
+    row.querySelector('.qty').value = item.qty || '';
+    row.querySelector('.unit').value = item.unit || 'шт';
+    row.querySelector('.price').value = item.price || '';
+    rows.appendChild(row);
+  });
+  recalc();
+} else {
+  addRow();
+}
+
+document.getElementById('clear').addEventListener('click', () => {
+  if (!window.confirm('Очистить все позиции, скидку и НДС?')) return;
+  rows.replaceChildren();
+  discountInput.value = '0';
+  vatInput.value = '0';
+  addRow();
+  recalc();
+});
 
 // ===== Функция 3: документ в PDF =====
 function el(tag, text, className) {

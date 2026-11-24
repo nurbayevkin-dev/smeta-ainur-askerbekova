@@ -122,6 +122,7 @@ button {
 button:active { transform: translateY(1px); }
 .add { margin-top: 12px; background: var(--mocha); color: #fff; }
 .add:hover { background: #46352D; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .remove {
   width: 38px;
   min-height: 38px;
