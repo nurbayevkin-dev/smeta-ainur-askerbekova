@@ -3,6 +3,22 @@ const template = document.getElementById('row-template');
 const discountInput = document.getElementById('discount');
 const vatInput = document.getElementById('vat');
 const currencySelect = document.getElementById('currency');
+const fromInput = document.getElementById('from');
+
+// Запоминаем только поле «От кого» в этом браузере.
+try {
+  fromInput.value = localStorage.getItem('smeta.from') || '';
+} catch (error) {
+  // Если localStorage недоступен, поле работает как обычный ввод.
+}
+
+fromInput.addEventListener('input', () => {
+  try {
+    localStorage.setItem('smeta.from', fromInput.value);
+  } catch (error) {
+    // Ошибка сохранения не мешает работе сметы.
+  }
+});
 
 // Дата по умолчанию — сегодня
 const now = new Date();
