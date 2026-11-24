@@ -160,6 +160,18 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 .summary .grand dt, .summary .grand dd { color: var(--card); }
 .summary .grand dd { font-size: 22px; }
+.summary .total-words-row {
+  padding: 10px 16px 12px;
+  border-bottom: 1px solid #E8E0D9;
+  color: var(--muted);
+  font-size: 14px;
+}
+.summary .total-words-row dd {
+  color: var(--chocolate);
+  font-weight: 600;
+  white-space: normal;
+  text-align: right;
+}
 .summary [hidden] { display: none; }
 .export-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .export-actions .add { margin: 0; }

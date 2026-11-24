@@ -83,6 +83,71 @@ function round(n) {
   return Math.round(n * 100) / 100;
 }
 
+const WORDS_ONES = ['ноль', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+const WORDS_FEMININE = ['ноль', 'одна', 'две', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+const WORDS_TEENS = ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'];
+const WORDS_TENS = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'];
+const WORDS_HUNDREDS = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];
+const WORDS_SCALES = [
+  null,
+  { forms: ['тысяча', 'тысячи', 'тысяч'], feminine: true },
+  { forms: ['миллион', 'миллиона', 'миллионов'] },
+  { forms: ['миллиард', 'миллиарда', 'миллиардов'] },
+  { forms: ['триллион', 'триллиона', 'триллионов'] },
+  { forms: ['квадриллион', 'квадриллиона', 'квадриллионов'] },
+];
+
+function pluralForm(value, forms) {
+  const lastTwo = value % 100;
+  if (lastTwo >= 11 && lastTwo <= 14) return forms[2];
+  const last = value % 10;
+  if (last === 1) return forms[0];
+  if (last >= 2 && last <= 4) return forms[1];
+  return forms[2];
+}
+
+function tripletInWords(value, feminine) {
+  const parts = [];
+  const hundreds = Math.floor(value / 100);
+  const rest = value % 100;
+  if (hundreds) parts.push(WORDS_HUNDREDS[hundreds]);
+  if (rest >= 10 && rest <= 19) {
+    parts.push(WORDS_TEENS[rest - 10]);
+  } else {
+    const tens = Math.floor(rest / 10);
+    const ones = rest % 10;
+    if (tens) parts.push(WORDS_TENS[tens]);
+    if (ones) parts.push((feminine ? WORDS_FEMININE : WORDS_ONES)[ones]);
+  }
+  return parts;
+}
+
+function integerInWords(value) {
+  if (value === 0) return 'ноль';
+  const parts = [];
+  let groupIndex = 0;
+  while (value > 0) {
+    const group = value % 1000;
+    if (group) {
+      const scale = WORDS_SCALES[groupIndex];
+      parts.unshift(...tripletInWords(group, Boolean(scale && scale.feminine)));
+      if (scale) parts.push(pluralForm(group, scale.forms));
+    }
+    value = Math.floor(value / 1000);
+    groupIndex += 1;
+  }
+  return parts.join(' ');
+}
+
+function amountInWords(amount) {
+  const centsTotal = Math.round(amount * 100);
+  const whole = Math.floor(centsTotal / 100);
+  const cents = centsTotal % 100;
+  let text = integerInWords(whole) + ' тенге';
+  if (cents) text += ' ' + String(cents).padStart(2, '0') + ' тиын';
+  return text[0].toLocaleUpperCase('ru-RU') + text.slice(1);
+}
+
 function formatMoney(n) {
   return n.toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + ' ' + currencySelect.value;
 }
@@ -118,6 +183,11 @@ function recalc() {
   setText('vat-label', vatPercent + ' %');
   setText('vat-amount', '+' + formatMoney(vat));
   setText('total', formatMoney(total));
+
+  const totalWordsRow = document.getElementById('total-words-row');
+  const showTotalWords = currencySelect.value === '₸' && total > 0;
+  totalWordsRow.hidden = !showTotalWords;
+  if (showTotalWords) setText('total-words', amountInWords(total));
 
   // Скидка 0 — строки скидки скрыты; НДС 0 — строка НДС скрыта
   document.getElementById('discount-row').hidden = discountPercent === 0;
@@ -278,13 +348,15 @@ function buildWhatsAppText() {
   });
 
   document.querySelectorAll('.summary > div').forEach((line) => {
-    if (line.hidden || line.classList.contains('grand') || line.id === 'after-discount-row') return;
+    if (line.hidden || line.classList.contains('grand') || line.id === 'after-discount-row' || line.id === 'total-words-row') return;
     const label = line.querySelector('dt').textContent.trim();
     const amount = line.querySelector('dd').textContent.trim();
     lines.push(label + ': ' + amount);
   });
   const total = document.querySelector('.summary .grand');
   lines.push(total.querySelector('dt').textContent + ': ' + total.querySelector('dd').textContent);
+  const totalWordsRow = document.getElementById('total-words-row');
+  if (!totalWordsRow.hidden) lines.push(totalWordsRow.querySelector('dd').textContent);
   return lines.join('\n');
 }
 
